@@ -95,7 +95,7 @@ if(WASM)
     )
 
 else()
-    message(STATUS "Compiling all-in-one barretenberg")
+    message(STATUS "Compiling all-in-one barretenberg archive")
     add_library(
         barretenberg
         STATIC
@@ -107,8 +107,6 @@ else()
         $<TARGET_OBJECTS:crypto_keccak_objects>
         $<TARGET_OBJECTS:crypto_schnorr_objects>
         $<TARGET_OBJECTS:crypto_pedersen_objects>
-        #$<TARGET_OBJECTS:crypto_ecdsa_objects>
-        #$<TARGET_OBJECTS:crypto_hmac_objects>
         $<TARGET_OBJECTS:ecc_objects>
         $<TARGET_OBJECTS:polynomials_objects>
         $<TARGET_OBJECTS:plonk_objects>
@@ -119,8 +117,6 @@ else()
         $<TARGET_OBJECTS:stdlib_sha256_objects>
         $<TARGET_OBJECTS:stdlib_aes128_objects>
         $<TARGET_OBJECTS:stdlib_merkle_tree_objects>
-        #$<TARGET_OBJECTS:stdlib_ecdsa_objects>
-        #$<TARGET_OBJECTS:stdlib_recursion_objects>
         $<TARGET_OBJECTS:rollup_proofs_inner_proof_data_objects>
         $<TARGET_OBJECTS:rollup_proofs_notes_objects>
         $<TARGET_OBJECTS:rollup_proofs_account_objects>
@@ -131,7 +127,6 @@ else()
         $<TARGET_OBJECTS:rollup_proofs_root_verifier_objects>
         $<TARGET_OBJECTS:rollup_proofs_root_rollup_objects>
         $<TARGET_OBJECTS:env_objects>
-        #$<TARGET_OBJECTS:ci_failsafe_objects>
     )
 
 endif()
