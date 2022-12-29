@@ -71,6 +71,33 @@ if(WASM)
         $<TARGET_OBJECTS:rollup_proofs_claim_objects>
     )
 
+    message(STATUS "Compiling all-in-one barretenberg WASM archive")
+    add_library(
+        barretenberg
+        STATIC
+        $<TARGET_OBJECTS:srs_objects>
+        $<TARGET_OBJECTS:numeric_objects>
+        $<TARGET_OBJECTS:crypto_sha256_objects>
+        $<TARGET_OBJECTS:crypto_aes128_objects>
+        $<TARGET_OBJECTS:crypto_blake2s_objects>
+        $<TARGET_OBJECTS:crypto_keccak_objects>
+        $<TARGET_OBJECTS:crypto_schnorr_objects>
+        $<TARGET_OBJECTS:crypto_pedersen_objects>
+        $<TARGET_OBJECTS:ecc_objects>
+        $<TARGET_OBJECTS:polynomials_objects>
+        $<TARGET_OBJECTS:plonk_objects>
+        $<TARGET_OBJECTS:stdlib_primitives_objects>
+        $<TARGET_OBJECTS:stdlib_schnorr_objects>
+        $<TARGET_OBJECTS:stdlib_pedersen_objects>
+        $<TARGET_OBJECTS:stdlib_blake2s_objects>
+        $<TARGET_OBJECTS:rollup_proofs_inner_proof_data_objects>
+        $<TARGET_OBJECTS:rollup_proofs_notes_objects>
+        $<TARGET_OBJECTS:rollup_proofs_account_objects>
+        $<TARGET_OBJECTS:rollup_proofs_join_split_objects>
+        $<TARGET_OBJECTS:rollup_proofs_claim_objects>
+    )
+
+
     # With binaryen installed, it seems its wasm backend optimiser gets invoked automatically.
     # Due to either a bug in the optimiser, or non-standards compliant c++ in crypto/aes, tests start failing with
     # -O3 level optimisations. We force down to -O2 for current workaround.
@@ -128,5 +155,4 @@ else()
         $<TARGET_OBJECTS:rollup_proofs_root_rollup_objects>
         $<TARGET_OBJECTS:env_objects>
     )
-
 endif()
