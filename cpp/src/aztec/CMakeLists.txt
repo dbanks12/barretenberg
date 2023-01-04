@@ -90,11 +90,19 @@ if(WASM)
         $<TARGET_OBJECTS:stdlib_schnorr_objects>
         $<TARGET_OBJECTS:stdlib_pedersen_objects>
         $<TARGET_OBJECTS:stdlib_blake2s_objects>
-        $<TARGET_OBJECTS:rollup_proofs_inner_proof_data_objects>
-        $<TARGET_OBJECTS:rollup_proofs_notes_objects>
-        $<TARGET_OBJECTS:rollup_proofs_account_objects>
-        $<TARGET_OBJECTS:rollup_proofs_join_split_objects>
-        $<TARGET_OBJECTS:rollup_proofs_claim_objects>
+        $<TARGET_OBJECTS:stdlib_sha256_objects>
+        $<TARGET_OBJECTS:stdlib_aes128_objects>
+        $<TARGET_OBJECTS:stdlib_merkle_tree_objects>
+        #$<TARGET_OBJECTS:rollup_proofs_inner_proof_data_objects>
+        #$<TARGET_OBJECTS:rollup_proofs_notes_objects>
+        #$<TARGET_OBJECTS:rollup_proofs_account_objects>
+        #$<TARGET_OBJECTS:rollup_proofs_join_split_objects>
+        #$<TARGET_OBJECTS:rollup_proofs_tx_rollup_objects>
+        #$<TARGET_OBJECTS:rollup_proofs_claim_objects>
+        #$<TARGET_OBJECTS:rollup_proofs_standard_example_objects>
+        #$<TARGET_OBJECTS:rollup_proofs_root_verifier_objects>
+        #$<TARGET_OBJECTS:rollup_proofs_root_rollup_objects>
+        $<TARGET_OBJECTS:env_objects>
     )
 
 
