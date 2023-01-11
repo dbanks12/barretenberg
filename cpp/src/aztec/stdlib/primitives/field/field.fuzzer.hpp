@@ -1,7 +1,7 @@
 #include <numeric/uint256/uint256.hpp>
 #include <numeric/random/engine.hpp>
 #include <stdlib/primitives/field/field.hpp>
-#include "../../../rollup/constants.hpp"
+#include <stdlib/primitives/constants/constants.hpp>
 #include <stdlib/primitives/bool/bool.hpp>
 #include <ecc/curves/bn254/fr.hpp>
 
@@ -1575,7 +1575,7 @@ template <typename Composer> class FieldBase {
             // Check assert conditions
             if ((lsb > msb) || (msb > 252) ||
                 (static_cast<uint256_t>(stack[first_index].f().get_value()) >=
-                 (static_cast<uint256_t>(1) << rollup::MAX_NO_WRAP_INTEGER_BIT_LENGTH))) {
+                 (static_cast<uint256_t>(1) << constants::MAX_NO_WRAP_INTEGER_BIT_LENGTH))) {
                 return 0;
             }
             PRINT_SLICE(first_index, lsb, msb, stack)
