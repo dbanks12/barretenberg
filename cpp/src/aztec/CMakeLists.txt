@@ -33,9 +33,13 @@ add_subdirectory(srs)
 add_subdirectory(ecc)
 add_subdirectory(crypto)
 add_subdirectory(polynomials)
+add_subdirectory(proof_system)
+add_subdirectory(transcript)
+add_subdirectory(honk)
 add_subdirectory(plonk)
 add_subdirectory(stdlib)
 add_subdirectory(rollup)
+add_subdirectory(lagrange_base_gen)
 
 if(BENCHMARKS)
     add_subdirectory(benchmark)
@@ -54,6 +58,7 @@ if(WASM)
         $<TARGET_OBJECTS:crypto_sha256_objects>
         $<TARGET_OBJECTS:crypto_aes128_objects>
         $<TARGET_OBJECTS:crypto_blake2s_objects>
+        $<TARGET_OBJECTS:crypto_blake3s_objects>
         $<TARGET_OBJECTS:crypto_keccak_objects>
         $<TARGET_OBJECTS:crypto_schnorr_objects>
         $<TARGET_OBJECTS:crypto_pedersen_objects>
@@ -64,6 +69,7 @@ if(WASM)
         $<TARGET_OBJECTS:stdlib_schnorr_objects>
         $<TARGET_OBJECTS:stdlib_pedersen_objects>
         $<TARGET_OBJECTS:stdlib_blake2s_objects>
+        $<TARGET_OBJECTS:stdlib_blake3s_objects>
         # TODO: remove all except those needed for testing (join_split)
         $<TARGET_OBJECTS:rollup_proofs_inner_proof_data_objects>
         $<TARGET_OBJECTS:rollup_proofs_notes_objects>

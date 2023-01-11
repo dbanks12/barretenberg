@@ -1,13 +1,13 @@
 #include "../prover/prover.hpp"
-#include "../proving_key/proving_key.hpp"
+#include "../../../proof_system/proving_key/proving_key.hpp"
 #include "../utils/linearizer.hpp"
 #include "../utils/permutation.hpp"
 #include "../widgets/transition_widgets/arithmetic_widget.hpp"
-#include "../../transcript/transcript.hpp"
+#include "../../../transcript/transcript.hpp"
 #include "verifier.hpp"
 #include <ecc/curves/bn254/scalar_multiplication/scalar_multiplication.hpp>
 #include <gtest/gtest.h>
-#include <plonk/reference_string/file_reference_string.hpp>
+#include <srs/reference_string/file_reference_string.hpp>
 #include <polynomials/polynomial_arithmetic.hpp>
 #include <plonk/proof_system/types/polynomial_manifest.hpp>
 #include <plonk/proof_system/commitment_scheme/kate_commitment_scheme.hpp>
@@ -298,6 +298,7 @@ TEST(verifier, verify_arithmetic_proof_small)
     EXPECT_EQ(result, true);
 }
 
+// TODO(Cody): This test is suddenly very slow to run?
 TEST(verifier, verify_arithmetic_proof)
 {
     size_t n = 1 << 14;

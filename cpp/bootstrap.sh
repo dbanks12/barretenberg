@@ -27,6 +27,7 @@ fi
 # Download ignition transcripts.
 cd ./srs_db
 ./download_ignition.sh 3
+./download_ignition_lagrange.sh 12
 cd ..
 
 # Pick native toolchain file.

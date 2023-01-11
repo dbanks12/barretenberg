@@ -6,10 +6,10 @@
 #include <gtest/gtest.h>
 #include "./polynomials/polynomial_arithmetic.hpp"
 #include "./polynomials/polynomial.hpp"
-#include "../prover/work_queue.hpp"
+#include "../../../proof_system/work_queue/work_queue.hpp"
 #include "../types/program_settings.hpp"
 #include "../../composer/composer_base.hpp"
-#include <plonk/reference_string/file_reference_string.hpp>
+#include <srs/reference_string/file_reference_string.hpp>
 
 #include <ecc/curves/bn254/fq12.hpp>
 #include <ecc/curves/bn254/pairing.hpp>
@@ -32,7 +32,7 @@ TEST(commitment_scheme, kate_open)
     fr z = fr::random_element();
 
     // compute opening polynomial W(X), and evaluation f = F(z)
-    transcript::StandardTranscript inp_tx = transcript::StandardTranscript({});
+    transcript::StandardTranscript inp_tx = transcript::StandardTranscript(transcript::Manifest());
     waffle::KateCommitmentScheme<turbo_settings> newKate;
 
     // std::shared_ptr<ReferenceStringFactory> crs_factory = (new FileReferenceStringFactory("../srs_db/ignition"));
@@ -90,7 +90,7 @@ TEST(commitment_scheme, kate_batch_open)
     }
 
     // setting up the Kate commitment scheme class
-    transcript::StandardTranscript inp_tx = transcript::StandardTranscript({});
+    transcript::StandardTranscript inp_tx = transcript::StandardTranscript(transcript::Manifest());
     waffle::KateCommitmentScheme<turbo_settings> newKate;
 
     auto file_crs = std::make_shared<waffle::FileReferenceStringFactory>("../srs_db/ignition");

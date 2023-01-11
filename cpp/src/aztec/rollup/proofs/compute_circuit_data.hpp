@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <common/timer.hpp>
-#include <plonk/proof_system/proving_key/serialize.hpp>
+#include <proof_system/proving_key/serialize.hpp>
 #include <filesystem>
 
 #define GET_COMPOSER_NAME_STRING(composer)                                                                             \
@@ -220,8 +220,8 @@ circuit_data get_circuit_data(std::string const& name,
         } else if (data.proving_key) {
             info(name, ": Computing padding proof...");
 
-            if (composer.failed) {
-                info(name, ": Composer logic failed: ", composer.err);
+            if (composer.failed()) {
+                info(name, ": Composer logic failed: ", composer.err());
                 info(name, ": Warning, padding proof can only be used to aid upstream pk construction!");
             }
 

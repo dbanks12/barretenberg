@@ -4,7 +4,7 @@
 #include "../notes/native/index.hpp"
 #include <common/streams.hpp>
 #include <common/test.hpp>
-#include <plonk/proof_system/proving_key/serialize.hpp>
+#include <proof_system/proving_key/serialize.hpp>
 #include <stdlib/merkle_tree/index.hpp>
 #include <crypto/sha256/sha256.hpp>
 
@@ -13,7 +13,7 @@ namespace proofs {
 namespace join_split {
 
 using namespace barretenberg;
-using namespace plonk::stdlib::types::turbo;
+// using namespace plonk::stdlib::types::turbo;
 using namespace plonk::stdlib::merkle_tree;
 using namespace rollup::proofs::notes::native;
 using key_pair = rollup::fixtures::grumpkin_key_pair;
