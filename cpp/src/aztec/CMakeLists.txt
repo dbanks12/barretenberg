@@ -64,6 +64,7 @@ if(WASM)
         $<TARGET_OBJECTS:stdlib_schnorr_objects>
         $<TARGET_OBJECTS:stdlib_pedersen_objects>
         $<TARGET_OBJECTS:stdlib_blake2s_objects>
+        # TODO: remove all except those needed for testing (join_split)
         $<TARGET_OBJECTS:rollup_proofs_inner_proof_data_objects>
         $<TARGET_OBJECTS:rollup_proofs_notes_objects>
         $<TARGET_OBJECTS:rollup_proofs_account_objects>
@@ -71,6 +72,30 @@ if(WASM)
         $<TARGET_OBJECTS:rollup_proofs_claim_objects>
     )
 
+    # With binaryen installed, it seems its wasm backend optimiser gets invoked automatically.
+    # Due to either a bug in the optimiser, or non-standards compliant c++ in crypto/aes, tests start failing with
+    # -O3 level optimisations. We force down to -O2 for current workaround.
+    # Presumably the -O3 when compiling the object files is fine as it's llvms IR optimiser.
+    # The backend optimiser is presumably triggered after linking.
+    target_link_options(
+        barretenberg-step1.wasm
+        PRIVATE
+        -v -nostartfiles -O2 -Wl,--no-entry -Wl,--export-dynamic -Wl,--import-memory -Wl,--allow-undefined -Wl,--stack-first -Wl,-z,stack-size=1048576
+    )
+    
+    add_custom_command(
+        OUTPUT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg.wasm
+        COMMAND wasm-opt ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg-step1.wasm -O2 --asyncify -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg.wasm
+        DEPENDS barretenberg-step1.wasm
+        VERBATIM
+    )
+
+    add_custom_target(
+        barretenberg.wasm
+        DEPENDS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg.wasm
+    )
+
+    # For use when compiling dependent cpp projects for WASM
     message(STATUS "Compiling all-in-one barretenberg WASM archive")
     add_library(
         barretenberg
@@ -93,43 +118,10 @@ if(WASM)
         $<TARGET_OBJECTS:stdlib_sha256_objects>
         $<TARGET_OBJECTS:stdlib_aes128_objects>
         $<TARGET_OBJECTS:stdlib_merkle_tree_objects>
-        #$<TARGET_OBJECTS:rollup_proofs_inner_proof_data_objects>
-        #$<TARGET_OBJECTS:rollup_proofs_notes_objects>
-        #$<TARGET_OBJECTS:rollup_proofs_account_objects>
-        #$<TARGET_OBJECTS:rollup_proofs_join_split_objects>
-        #$<TARGET_OBJECTS:rollup_proofs_tx_rollup_objects>
-        #$<TARGET_OBJECTS:rollup_proofs_claim_objects>
-        #$<TARGET_OBJECTS:rollup_proofs_standard_example_objects>
-        #$<TARGET_OBJECTS:rollup_proofs_root_verifier_objects>
-        #$<TARGET_OBJECTS:rollup_proofs_root_rollup_objects>
-        $<TARGET_OBJECTS:env_objects>
-    )
-
-
-    # With binaryen installed, it seems its wasm backend optimiser gets invoked automatically.
-    # Due to either a bug in the optimiser, or non-standards compliant c++ in crypto/aes, tests start failing with
-    # -O3 level optimisations. We force down to -O2 for current workaround.
-    # Presumably the -O3 when compiling the object files is fine as it's llvms IR optimiser.
-    # The backend optimiser is presumably triggered after linking.
-    target_link_options(
-        barretenberg-step1.wasm
-        PRIVATE
-        -nostartfiles -O2 -Wl,--no-entry -Wl,--export-dynamic -Wl,--import-memory -Wl,--allow-undefined -Wl,--stack-first -Wl,-z,stack-size=1048576
-    )
-
-    add_custom_command(
-        OUTPUT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg.wasm
-        COMMAND wasm-opt ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg-step1.wasm -O2 --asyncify -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg.wasm
-        DEPENDS barretenberg-step1.wasm
-        VERBATIM
-    )
-
-    add_custom_target(
-        barretenberg.wasm
-        DEPENDS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg.wasm
     )
 
 else()
+    # For use when compiling dependent cpp projects
     message(STATUS "Compiling all-in-one barretenberg archive")
     add_library(
         barretenberg
@@ -152,15 +144,6 @@ else()
         $<TARGET_OBJECTS:stdlib_sha256_objects>
         $<TARGET_OBJECTS:stdlib_aes128_objects>
         $<TARGET_OBJECTS:stdlib_merkle_tree_objects>
-        $<TARGET_OBJECTS:rollup_proofs_inner_proof_data_objects>
-        $<TARGET_OBJECTS:rollup_proofs_notes_objects>
-        $<TARGET_OBJECTS:rollup_proofs_account_objects>
-        $<TARGET_OBJECTS:rollup_proofs_join_split_objects>
-        $<TARGET_OBJECTS:rollup_proofs_tx_rollup_objects>
-        $<TARGET_OBJECTS:rollup_proofs_claim_objects>
-        $<TARGET_OBJECTS:rollup_proofs_standard_example_objects>
-        $<TARGET_OBJECTS:rollup_proofs_root_verifier_objects>
-        $<TARGET_OBJECTS:rollup_proofs_root_rollup_objects>
         $<TARGET_OBJECTS:env_objects>
     )
 endif()

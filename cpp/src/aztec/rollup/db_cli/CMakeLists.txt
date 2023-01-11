@@ -6,5 +6,6 @@ add_executable(
 target_link_libraries(
     db_cli
     PRIVATE
-    barretenberg
+    stdlib_merkle_tree
+    env
 )
