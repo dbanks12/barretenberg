@@ -2,7 +2,6 @@
 #include <functional>
 #include "../bool/bool.hpp"
 #include "../composers/composers.hpp"
-#include "pow.hpp"
 #include <stdlib/primitives/constants/constants.hpp>
 
 // #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -1067,8 +1066,8 @@ template <typename ComposerContext>
 std::array<field_t<ComposerContext>, 3> field_t<ComposerContext>::slice(const uint8_t msb, const uint8_t lsb) const
 {
     ASSERT(msb >= lsb);
-    ASSERT(msb < rollup::MAX_NO_WRAP_INTEGER_BIT_LENGTH); //  CODY: eek! Why is rollup info here? function input arg
-                                                          //  msb_bound or something
+    ASSERT(msb < constants::MAX_NO_WRAP_INTEGER_BIT_LENGTH); //  CODY: eek! Why is rollup info here? function input arg
+                                                             //  msb_bound or something
     const field_t lhs = *this;
     ComposerContext* ctx = lhs.get_context();
 
