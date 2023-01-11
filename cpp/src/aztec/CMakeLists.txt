@@ -87,7 +87,7 @@ if(WASM)
         PRIVATE
         -nostartfiles -O2 -Wl,--no-entry -Wl,--export-dynamic -Wl,--import-memory -Wl,--allow-undefined -Wl,--stack-first -Wl,-z,stack-size=1048576
     )
-    
+
     add_custom_command(
         OUTPUT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg.wasm
         COMMAND wasm-opt ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg-step1.wasm -O2 --asyncify -o ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/barretenberg.wasm
