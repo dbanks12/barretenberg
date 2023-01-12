@@ -15,3 +15,4 @@ FROM alpine:3.13
 RUN apk update && apk add libstdc++ libgomp
 COPY --from=builder /usr/src/barretenberg/cpp/build/bin/db_cli /usr/src/barretenberg/cpp/build/bin/db_cli
 COPY --from=builder /usr/src/barretenberg/cpp/build/bin/rollup_cli /usr/src/barretenberg/cpp/build/bin/rollup_cli
+COPY --from=builder /usr/src/barretenberg/cpp/build/lib/libbarretenberg.a /usr/src/barretenberg/cpp/build/bin/lib/libbarretenberg.a
