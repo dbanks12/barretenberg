@@ -13,6 +13,7 @@
 set -e
 
 REPOSITORY=$1
+IGNORE_CACHED_IMAGES=$2
 DOCKERFILE=$(query_manifest dockerfile $REPOSITORY)
 PROJECT_DIR=$(query_manifest projectDir $REPOSITORY)
 
@@ -31,22 +32,24 @@ function fetch_image() {
   return 0
 }
 
-# Ensure ECR repository exists.
-ensure_repo $REPOSITORY $ECR_REGION refresh_lifecycle
+if [ -z "$IGNORE_CACHED_IMAGES" ]; then
+  # Ensure ECR repository exists.
+  ensure_repo $REPOSITORY $ECR_REGION refresh_lifecycle
 
-LAST_SUCCESSFUL_COMMIT=$(last_successful_commit $REPOSITORY)
-echo "Last successful commit: $LAST_SUCCESSFUL_COMMIT"
+  LAST_SUCCESSFUL_COMMIT=$(last_successful_commit $REPOSITORY)
+  echo "Last successful commit: $LAST_SUCCESSFUL_COMMIT"
 
-# If we have previously successful commit, we can early out if nothing relevant has changed since.
-if ! check_rebuild "$LAST_SUCCESSFUL_COMMIT" $REPOSITORY; then
-  echo "No rebuild necessary. Retagging..."
-  STAGES=$(cat $DOCKERFILE | sed -n -e 's/^FROM .* AS \(.*\)/\1/p')
-  for STAGE in $STAGES; do
-    tag_remote_image $REPOSITORY cache-$LAST_SUCCESSFUL_COMMIT-$STAGE cache-$COMMIT_HASH-$STAGE || true
-  done
-  tag_remote_image $REPOSITORY cache-$LAST_SUCCESSFUL_COMMIT cache-$COMMIT_HASH
-  untag_remote_image $REPOSITORY tainted
-  exit 0
+  # If we have previously successful commit, we can early out if nothing relevant has changed since.
+  if ! check_rebuild "$LAST_SUCCESSFUL_COMMIT" $REPOSITORY; then
+    echo "No rebuild necessary. Retagging..."
+    STAGES=$(cat $DOCKERFILE | sed -n -e 's/^FROM .* AS \(.*\)/\1/p')
+    for STAGE in $STAGES; do
+      tag_remote_image $REPOSITORY cache-$LAST_SUCCESSFUL_COMMIT-$STAGE cache-$COMMIT_HASH-$STAGE || true
+    done
+    tag_remote_image $REPOSITORY cache-$LAST_SUCCESSFUL_COMMIT cache-$COMMIT_HASH
+    untag_remote_image $REPOSITORY tainted
+    exit 0
+  fi
 fi
 
 # Validate any terraform if it exists.
@@ -65,30 +68,32 @@ if [ -d $ROOT_PATH/$PROJECT_DIR/terraform ]; then
   popd
 fi
 
-# Pull latest parents that are not ours.
-echo "$DOCKERHUB_PASSWORD" | docker login -u aztecprotocolci --password-stdin
-PARENTS=$(cat $DOCKERFILE | sed -n -e 's/^FROM \([^[:space:]]\+\).*/\1/p' | grep -v $ECR_DEPLOY_URL | sort | uniq)
-for PARENT in $PARENTS; do
-  fetch_image $PARENT
-done
+if [ -z "$IGNORE_CACHED_IMAGES" ]; then
+  # Pull latest parents that are not ours.
+  echo "$DOCKERHUB_PASSWORD" | docker login -u aztecprotocolci --password-stdin
+  PARENTS=$(cat $DOCKERFILE | sed -n -e 's/^FROM \([^[:space:]]\+\).*/\1/p' | grep -v $ECR_DEPLOY_URL | sort | uniq)
+  for PARENT in $PARENTS; do
+    fetch_image $PARENT
+  done
 
-# For each parent that's ours, pull in the latest image.
-PARENTS=$(cat $DOCKERFILE | sed -n -e "s/^FROM $ECR_DEPLOY_URL\/\([^[:space:]]\+\).*/\1/p")
-for PARENT in $PARENTS; do
-  # Extract repository name (i.e. discard tag).
-  PARENT_REPO=${PARENT%:*}
-  PARENT_COMMIT_HASH=$(last_successful_commit $PARENT_REPO)
-  # There must be a parent image to continue.
-  if [ -z "$PARENT_COMMIT_HASH" ]; then
-    echo "No parent image found for $PARENT_REPO"
-    exit 1
-  fi
-  PARENT_IMAGE_URI=$ECR_URL/$PARENT_REPO:cache-$PARENT_COMMIT_HASH
-  echo "Pulling dependency $PARENT_REPO..."
-  fetch_image $PARENT_IMAGE_URI
-  # Tag it to look like an official release as that's what we use in Dockerfiles.
-  docker tag $PARENT_IMAGE_URI $ECR_DEPLOY_URL/$PARENT
-done
+  # For each parent that's ours, pull in the latest image.
+  PARENTS=$(cat $DOCKERFILE | sed -n -e "s/^FROM $ECR_DEPLOY_URL\/\([^[:space:]]\+\).*/\1/p")
+  for PARENT in $PARENTS; do
+    # Extract repository name (i.e. discard tag).
+    PARENT_REPO=${PARENT%:*}
+    PARENT_COMMIT_HASH=$(last_successful_commit $PARENT_REPO)
+    # There must be a parent image to continue.
+    if [ -z "$PARENT_COMMIT_HASH" ]; then
+      echo "No parent image found for $PARENT_REPO"
+      exit 1
+    fi
+    PARENT_IMAGE_URI=$ECR_URL/$PARENT_REPO:cache-$PARENT_COMMIT_HASH
+    echo "Pulling dependency $PARENT_REPO..."
+    fetch_image $PARENT_IMAGE_URI
+    # Tag it to look like an official release as that's what we use in Dockerfiles.
+    docker tag $PARENT_IMAGE_URI $ECR_DEPLOY_URL/$PARENT
+  done
+fi
 
 # Pull, build and push each named stage to cache.
 STAGES=$(cat $DOCKERFILE | sed -n -e 's/^FROM .* AS \(.*\)/\1/p')

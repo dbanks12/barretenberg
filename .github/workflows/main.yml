@@ -32,14 +32,14 @@ jobs:
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
         #run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
-        run: set -x && source ./.circleci/setup_env && bash .circleci/build barretenberg-wasm-linux-clang
+        run: set -x && source ./.circleci/setup_env && bash .circleci/build barretenberg-wasm-linux-clang ignore_cache
 
 
 # When setting up builds, using `container: aztecprotocol/alpine-build-image` results in:
 # ```
 # fatal: detected dubious ownership in repository at '/__w/barretenberg/barretenberg'
 # To add an exception for this directory, call:
-# 
+#
 #	  git config --global --add safe.directory /__w/barretenberg/barretenberg
 # ```
 #
