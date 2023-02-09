@@ -28,6 +28,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup environment
-        run: cd .circleci && bash ./setup_env
+        run: cd .circleci && source ./setup_env
       - name: Build
         run: bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
