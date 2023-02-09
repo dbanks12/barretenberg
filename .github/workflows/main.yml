@@ -31,7 +31,8 @@ jobs:
       #- name: Setup environment
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
-        run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
+        #run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
+        run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/build barretenberg-wasm-linux-clang
 
 
 # When setting up builds, using `container: aztecprotocol/alpine-build-image` results in:
