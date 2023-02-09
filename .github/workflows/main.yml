@@ -96,7 +96,6 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           file: ./cpp/dockerfiles/Dockerfile.${{ github.job }}
-          target: build
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: false
@@ -108,7 +107,6 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           file: ./cpp/dockerfiles/Dockerfile.${{ github.job }}-assert
-          target: build
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: false
