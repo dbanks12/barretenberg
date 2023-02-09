@@ -27,5 +27,4 @@ jobs:
     container: aztecprotocol/alpine-build-image
     steps:
       - name: Build
-        run: ./.circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
-        shell: bash
+        run: bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
