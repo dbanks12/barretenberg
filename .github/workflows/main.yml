@@ -32,7 +32,7 @@ jobs:
       #    # UHU?!? The checkout action does exactly the same and that doesn't work.
       #    /usr/bin/git config --global --add safe.directory /__w/barretenberg/barretenberg
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # WARNING: what is this and why is it necessary?
           set-safe-directory: true
