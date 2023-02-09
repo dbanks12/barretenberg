@@ -27,7 +27,7 @@ jobs:
     container: aztecprotocol/alpine-build-image
     steps:
       - uses: actions/checkout@v3
-      - name: Setup environment
-        run: cd .circleci && source ./setup_env && cd ../
+      #- name: Setup environment
+      #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
-        run: bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
+        run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
