@@ -132,6 +132,6 @@ fi
 IMAGE_COMMIT_URI=$ECR_URL/$REPOSITORY:cache-$COMMIT_HASH
 echo "Building image: $IMAGE_COMMIT_URI"
 docker build -t $IMAGE_COMMIT_URI -f $DOCKERFILE $CACHE_FROM --build-arg COMMIT_TAG=$COMMIT_TAG .
-echo "Pushing image: $IMAGE_COMMIT_URI"
-docker push $IMAGE_COMMIT_URI > /dev/null 2>&1
-untag_remote_image $REPOSITORY tainted
+#echo "Pushing image: $IMAGE_COMMIT_URI"
+#docker push $IMAGE_COMMIT_URI > /dev/null 2>&1
+#untag_remote_image $REPOSITORY tainted
