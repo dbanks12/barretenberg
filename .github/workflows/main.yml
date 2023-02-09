@@ -28,9 +28,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        #with:
-        #  set-safe-directory: true
-        #  token: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          set-safe-directory: true
+          token: ${{ secrets.GITHUB_TOKEN }}
       #- name: Setup environment
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
@@ -45,6 +45,7 @@ jobs:
 #	  git config --global --add safe.directory /__w/barretenberg/barretenberg
 # ```
 # 
+# To work around this for now I had to remove `container: aztecprotocl/alpine-build-image`
 # Things I tried that did not work:
 # * revert to `actions/checkout@v2`
 # * add the following to `uses: actions/checkout@v3` (or v2):
