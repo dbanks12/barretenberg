@@ -26,7 +26,16 @@ jobs:
     #needs: checkout
     container: aztecprotocol/alpine-build-image
     steps:
-      - uses: actions/checkout@v2
+      #- name: Install git
+      #  - run: |
+      #    apk update && apk add git
+      #    # UHU?!? The checkout action does exactly the same and that doesn't work.
+      #    /usr/bin/git config --global --add safe.directory /__w/barretenberg/barretenberg
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          # WARNING: what is this and why is it necessary?
+          set-safe-directory: true
       #- name: Setup environment
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
