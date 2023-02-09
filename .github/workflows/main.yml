@@ -22,15 +22,12 @@ jobs:
   #      uses: actions/checkout@v3
 
   wasm-linux-clang:
-    runs-on: ubuntu-latest
+    runs-on: aztecprotocol/alpine-build-image
     #needs: checkout
     #container: aztecprotocol/alpine-build-image
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        #with:
-        #  set-safe-directory: true
-        #  token: ${{ secrets.GITHUB_TOKEN }}
       #- name: Setup environment
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
@@ -49,7 +46,7 @@ jobs:
 #
 # Things I tried that did not work:
 # * revert to `actions/checkout@v2`
-# * add the following to `uses: actions/checkout@v3` (or v2):
+# * add the following to `uses: actions/checkout@v3` (or v2), but I don't totally follow what this does:
 #   ```
 #      with:
 #        set-safe-directory: true
