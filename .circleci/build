@@ -114,9 +114,9 @@ for STAGE in $STAGES; do
   # We don't want to have redo this stages work when building the final image. Use it as a layer cache.
   CACHE_FROM="--cache-from $STAGE_IMAGE_COMMIT_URI $CACHE_FROM"
 
-  echo "Pushing stage: $STAGE"
-  docker push $STAGE_IMAGE_COMMIT_URI > /dev/null 2>&1
-  echo
+  #echo "Pushing stage: $STAGE"
+  #docker push $STAGE_IMAGE_COMMIT_URI > /dev/null 2>&1
+ echo
 done
 
 # Pull previous image to use it as a layer cache if it exists.
