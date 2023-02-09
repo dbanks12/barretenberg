@@ -94,7 +94,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: .
+          context: ./cpp
           file: ./cpp/dockerfiles/Dockerfile.${{ github.job }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -105,7 +105,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: .
+          context: ./cpp
           file: ./cpp/dockerfiles/Dockerfile.${{ github.job }}-assert
           cache-from: type=gha
           cache-to: type=gha,mode=max
