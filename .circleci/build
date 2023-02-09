@@ -16,10 +16,14 @@ REPOSITORY=$1
 IGNORE_CACHED_IMAGES=$2
 DOCKERFILE=$(query_manifest dockerfile $REPOSITORY)
 PROJECT_DIR=$(query_manifest projectDir $REPOSITORY)
+DOCKER_USERNAME=${DOCKER_USERNAME:-aztecprotocolci}
 
 echo "Repository: $REPOSITORY"
 echo "Working directory: $PWD"
 echo "Dockerfile: $DOCKERFILE"
+
+# will build a list of images to push in CI in this file
+rm -f images_to_push
 
 cd $(query_manifest buildDir $REPOSITORY)
 
@@ -70,7 +74,7 @@ fi
 
 if [ -z "$IGNORE_CACHED_IMAGES" ]; then
   # Pull latest parents that are not ours.
-  echo "$DOCKERHUB_PASSWORD" | docker login -u aztecprotocolci --password-stdin
+  echo "$DOCKERHUB_PASSWORD" | docker login -u $DOCKERHUB_USERNAME --password-stdin
   PARENTS=$(cat $DOCKERFILE | sed -n -e 's/^FROM \([^[:space:]]\+\).*/\1/p' | grep -v $ECR_DEPLOY_URL | sort | uniq)
   for PARENT in $PARENTS; do
     fetch_image $PARENT
@@ -101,14 +105,16 @@ for STAGE in $STAGES; do
   # Get the last build of this stage to leverage layer caching.
   if [ -n "$LAST_SUCCESSFUL_COMMIT" ]; then
     echo "Pulling stage: $STAGE"
-    STAGE_IMAGE_LAST_URI=$ECR_URL/$REPOSITORY:cache-$LAST_SUCCESSFUL_COMMIT-$STAGE
+    #STAGE_IMAGE_LAST_URI=$ECR_URL/$REPOSITORY:cache-$LAST_SUCCESSFUL_COMMIT-$STAGE
+    STAGE_IMAGE_LAST_URI=$REPOSITORY:cache-$LAST_SUCCESSFUL_COMMIT-$STAGE
     if fetch_image $STAGE_IMAGE_LAST_URI; then
       STAGE_CACHE_FROM="--cache-from $STAGE_IMAGE_LAST_URI"
     fi
   fi
 
   echo "Building stage: $STAGE"
-  STAGE_IMAGE_COMMIT_URI=$ECR_URL/$REPOSITORY:cache-$COMMIT_HASH-$STAGE
+  #STAGE_IMAGE_COMMIT_URI=$ECR_URL/$REPOSITORY:cache-$COMMIT_HASH-$STAGE
+  STAGE_IMAGE_COMMIT_URI=$REPOSITORY:cache-$COMMIT_HASH-$STAGE
   docker build --target $STAGE $STAGE_CACHE_FROM -t $STAGE_IMAGE_COMMIT_URI -f $DOCKERFILE .
 
   # We don't want to have redo this stages work when building the final image. Use it as a layer cache.
@@ -116,6 +122,8 @@ for STAGE in $STAGES; do
 
   #echo "Pushing stage: $STAGE"
   #docker push $STAGE_IMAGE_COMMIT_URI > /dev/null 2>&1
+  echo "Saving image name to push later for stage: $STAGE"
+  echo "$STAGE_IMAGE_COMMIT_URI" >> images_to_push
  echo
 done
 
@@ -129,9 +137,13 @@ if [ -n "$LAST_SUCCESSFUL_COMMIT" ]; then
 fi
 
 # Build the actual image and give it a commit tag.
-IMAGE_COMMIT_URI=$ECR_URL/$REPOSITORY:cache-$COMMIT_HASH
+#IMAGE_COMMIT_URI=$ECR_URL/$REPOSITORY:cache-$COMMIT_HASH
+IMAGE_COMMIT_URI=$REPOSITORY:cache-$COMMIT_HASH
 echo "Building image: $IMAGE_COMMIT_URI"
 docker build -t $IMAGE_COMMIT_URI -f $DOCKERFILE $CACHE_FROM --build-arg COMMIT_TAG=$COMMIT_TAG .
 #echo "Pushing image: $IMAGE_COMMIT_URI"
 #docker push $IMAGE_COMMIT_URI > /dev/null 2>&1
+echo "Saving image name to push later: $IMAGE_COMMIT_URI"
+echo "$IMAGE_COMMIT_URI" >> images_to_push
+cat images_to_push
 #untag_remote_image $REPOSITORY tainted

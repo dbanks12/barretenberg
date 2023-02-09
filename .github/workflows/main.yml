@@ -71,28 +71,38 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup env and Build
+      - name: Build image
         run: |
           set -x
           cd .circleci
           source ./setup_env_github
           cd ../
-          #run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-x86_64-linux-clang-assert 64
-          #set -x && cd .circleci/ && source setup_env && cd ../ && bash .circleci/build barretenberg-x86_64-linux-clang-assert ignore_cache
+          bash .circleci/build $GITHUB_REPOSOTIRY-$GITHUB_JOB ignore_cache
+      - name: Upload image
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: "$GITHUB_REPOSITORY-$GITHUB_JOB:cache-$GITHUB_SHA"
 
-  #barretenberg-tests:
-  #  #if: github.event.pull_request.merged == true
-  #  runs-on: ubuntu-latest
-  #  #needs: checkout
-  #  #container: aztecprotocol/alpine-build-image
-  #  steps:
-  #    - name: Checkout
-  #      uses: actions/checkout@v3
-  #    #- name: Setup environment
-  #    #  run: cd .circleci && source ./setup_env && cd ../
-  #    - name: Build
-  #      #run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
-  #      run: set -x && cd .circleci/ && source setup_env && cd ../ && bash .circleci/build barretenberg-x86_64-linux-clang-assert ignore_cache && cd cpp && bash scripts/run_tests bb-tests
+  barretenberg-tests:
+    #if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    needs: x86_64-linux-clang-assert
+    #container: aztecprotocol/alpine-build-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "$GITHUB_REPOSITORY-x86_64-linux-clang-assert:cache-$GITHUB_SHA"
+      - name: Run Tests
+        run: |
+          set -x
+          cd .circleci
+          source ./setup_env_github
+          cd ../
+          cd cpp
+          bash scripts/run_tests_no_aws 1 bb-tests $GITHUB_REPOSITORY-x86_64-linux-clang-assert:cache-$GITHUB_SHA
 
 
 
