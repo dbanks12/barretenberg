@@ -36,6 +36,7 @@ jobs:
         with:
           # WARNING: what is this and why is it necessary?
           set-safe-directory: true
+          token: ${{ secrets.GITHUB_TOKEN }}
       #- name: Setup environment
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
