@@ -24,13 +24,13 @@ jobs:
   wasm-linux-clang:
     runs-on: ubuntu-latest
     #needs: checkout
-    #container: aztecprotocol/alpine-build-image
+    container: aztecprotocol/alpine-build-image
     steps:
-      #- name: Install git
-      #  - run: |
-      #    apk update && apk add git
-      #    # UHU?!? The checkout action does exactly the same and that doesn't work.
-      #    /usr/bin/git config --global --add safe.directory /__w/barretenberg/barretenberg
+      - name: Install git
+        - run: |
+          apk update && apk add git
+          # UHU?!? The checkout action does exactly the same and that doesn't work.
+          /usr/bin/git config --global --add safe.directory /__w/barretenberg/barretenberg
       - name: Checkout
         uses: actions/checkout@v3
         with:
