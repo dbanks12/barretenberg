@@ -26,7 +26,7 @@ jobs:
     #needs: checkout
     container: aztecprotocol/alpine-build-image
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       #- name: Setup environment
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
