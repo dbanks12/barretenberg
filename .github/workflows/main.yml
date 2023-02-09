@@ -26,18 +26,36 @@ jobs:
     #needs: checkout
     container: aztecprotocol/alpine-build-image
     steps:
-      - name: Install git
-        - run: |
-          apk update && apk add git
-          # UHU?!? The checkout action does exactly the same and that doesn't work.
-          /usr/bin/git config --global --add safe.directory /__w/barretenberg/barretenberg
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          # WARNING: what is this and why is it necessary?
-          set-safe-directory: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+        #with:
+        #  set-safe-directory: true
+        #  token: ${{ secrets.GITHUB_TOKEN }}
       #- name: Setup environment
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
         run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
+
+
+# When setting up builds, using `container: aztecprotocol/alpine-build-image` results in:
+# ```
+# fatal: detected dubious ownership in repository at '/__w/barretenberg/barretenberg'
+# To add an exception for this directory, call:
+# 
+#	  git config --global --add safe.directory /__w/barretenberg/barretenberg
+# ```
+# 
+# Things I tried that did not work:
+# * revert to `actions/checkout@v2`
+# * add the following to `uses: actions/checkout@v3` (or v2):
+#   ```
+#      with:
+#        set-safe-directory: true
+#        token: ${{ secrets.GITHUB_TOKEN }}
+#   ```
+# * manually run the following before the checkout step:
+#   ```
+#     run: |
+#       apk update && apk add git
+#       /usr/bin/git config --global --add safe.directory /__w/barretenberg/barretenberg
+#   ```
