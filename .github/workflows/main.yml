@@ -23,8 +23,9 @@ jobs:
 
   wasm-linux-clang:
     runs-on: ubuntu-latest
-    needs: checkout
+    #needs: checkout
     container: aztecprotocol/alpine-build-image
     steps:
+      - uses: actions/checkout@v3
       - name: Build
         run: bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
