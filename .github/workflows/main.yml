@@ -32,7 +32,7 @@ jobs:
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
         #run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
-        run: set -x && source ./.circleci/setup_env && bash .circleci/build barretenberg-wasm-linux-clang ignore_cache
+        run: set -x && cd .circleci/ && source setup_env && cd ../ && bash .circleci/build barretenberg-wasm-linux-clang ignore_cache
 
   x86_64-linux-clang:
     runs-on: ubuntu-latest
@@ -45,7 +45,7 @@ jobs:
       #  run: cd .circleci && source ./setup_env && cd ../
       - name: Build
         #run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
-        run: set -x && source ./.circleci/setup_env && bash .circleci/build barretenberg-x86_64-linux-clang ignore_cache
+        run: set -x && cd .circleci/ && source setup_env && cd ../ && bash .circleci/build barretenberg-x86_64-linux-clang ignore_cache
 
 
 # When setting up builds, using `container: aztecprotocol/alpine-build-image` results in:
