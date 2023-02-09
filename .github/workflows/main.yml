@@ -64,7 +64,7 @@ jobs:
   #      run: set -x && cd .circleci/ && source setup_env && cd ../ && bash .circleci/build barretenberg-x86_64-linux-clang ignore_cache
 
   x86_64-linux-clang-assert:
-    if: github.event.pull_request.merged == true
+    #if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     #needs: checkout
     #container: aztecprotocol/alpine-build-image
@@ -78,7 +78,7 @@ jobs:
         run: set -x && cd .circleci/ && source setup_env && cd ../ && bash .circleci/build barretenberg-x86_64-linux-clang-assert ignore_cache
 
   barretenberg-tests:
-    if: github.event.pull_request.merged == true
+    #if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     #needs: checkout
     #container: aztecprotocol/alpine-build-image
