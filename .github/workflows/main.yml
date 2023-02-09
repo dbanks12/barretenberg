@@ -28,4 +28,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: cd .circleci/ && bash cond_spot_run_build barretenberg-wasm-linux-clang 64
+        run: bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
