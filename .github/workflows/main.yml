@@ -100,8 +100,8 @@ jobs:
           cache-to: type=gha,mode=max
           push: false
 
-      - name: Test
-        id: docker_test
+      - name: Build Tests
+        id: docker_build_test
         uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
@@ -109,7 +109,21 @@ jobs:
           file: ./cpp/dockerfiles/Dockerfile.${{ github.job }}-assert
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          load: true
           push: false
+          tags: barretenberg-tests
+
+      - name: Run Tests
+        id: docker_test
+        run: |
+          set -x
+          cd .circleci
+          source ./setup_env_github
+          cd ../
+          cd cpp
+          bash scripts/run_tests_no_aws 1 bb-tests barretenberg-tests
+       #bash scripts/run_tests_no_aws 1 bb-tests $GITHUB_JOB-assert:cache-$GITHUB_SHA
+
 
   #x86_64-linux-clang-assert:
   #  #if: github.event.pull_request.merged == true
