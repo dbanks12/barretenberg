@@ -121,7 +121,7 @@ jobs:
           source ./setup_env_github
           cd ../
           cd cpp
-          bash scripts/run_tests_no_aws 1 bb-tests barretenberg-tests
+          bash ./scripts/run_tests_no_aws 1 ./scripts/bb-tests barretenberg-tests
        #bash scripts/run_tests_no_aws 1 bb-tests $GITHUB_JOB-assert:cache-$GITHUB_SHA
 
 
