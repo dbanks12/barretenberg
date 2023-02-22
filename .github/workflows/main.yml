@@ -159,7 +159,7 @@ jobs:
           source ./setup_env_github
           cd ../
           cd cpp
-          bash ./scripts/run_tests_no_aws 1 ./scripts/bb-tests x86_64-linux-clang-tests
+          bash ./scripts/run_tests_no_aws 1 ./scripts/bb-tests x86_64-linux-clang
 
   #x86_64-linux-clang-assert:
   #  #if: github.event.pull_request.merged == true
