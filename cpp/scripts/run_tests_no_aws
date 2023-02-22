@@ -3,9 +3,13 @@ set -e
 
 NUM_TRANSCRIPTS=$1
 TESTS=$2
-IMAGE_URI=$3
 shift
 shift
+
+if [ -n "$3" ]; then
+  IMAGE_URI=$3
+  shift
+fi
 
 if [ -f "$TESTS" ]; then
   TESTS=$(cat $TESTS | tr '\n' ' ')
