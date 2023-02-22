@@ -3,14 +3,14 @@ set -e
 
 NUM_TRANSCRIPTS=$1
 TESTS=$2
+IMAGE_URI=$3
 shift
 shift
 
-echo "Arg3: $3"
+echo "Arg3: $IMAGE_URI"
 
-if [ -n "$3" ]; then
+if [ -n "$IMAGE_URI" ]; then
   echo "IMAGE_URI set"
-  IMAGE_URI=$3
   shift
 fi
 
