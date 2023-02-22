@@ -1,0 +1,19 @@
+#!/bin/bash
+# This script is meant to be sourced by github workflow jobs
+# where the following env vars will exist:
+# GITHUB_SHA, GITHUB_JOB, GITHUB_REF_NAME, GITHUB_REF_TYPE, GITHUB_REPOSITORY
+# It should be run from the same directory as this file
+
+
+COMMIT_HASH=$GITHUB_SHA
+JOB_NAME=$GITHUB_JOB
+GIT_REPOSITORY_URL=git@github.com:$GITHUB_REPOSITORY
+
+if [ "$GITHUB_REF_TYPE" = tag ]; then
+  COMMIT_TAG=$GITHUB_REF_NAME
+else
+  COMMIT_BRANCH=$GITHUB_REF_NAME
+fi
+
+echo source ./setup_env "$COMMIT_HASH" "$COMMIT_TAG" "$JOB_NAME" "$GIT_REPOSITORY_URL" "$COMMIT_BRANCH"
+source ./setup_env "$COMMIT_HASH" "$COMMIT_TAG" "$JOB_NAME" "$GIT_REPOSITORY_URL" "$COMMIT_BRANCH"

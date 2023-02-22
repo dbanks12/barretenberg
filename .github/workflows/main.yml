@@ -1,0 +1,230 @@
+name: Build docker images & run tests
+
+on:
+  push:
+    branches:
+      # run for all pushes to master
+      - master
+    tags:
+      # run for all pushes to any tags
+      - "*"
+  pull_request:
+    # run for all opens/pushes/merges of PRs
+    # to run on merge, we use `closed` in conjunction with
+    # `if: github.event.pull_request.merged` in job
+    types: [opened, reopened, synchronize, closed ]
+
+jobs:
+  #checkout:
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout code
+  #      uses: actions/checkout@v3
+
+  #wasm-linux-clang:
+  #  if: github.event.pull_request.merged == true
+  #  runs-on: ubuntu-latest
+  #  #needs: checkout
+  #  #container: aztecprotocol/alpine-build-image
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v3
+  #    #- name: Setup environment
+  #    #  run: cd .circleci && source ./setup_env && cd ../
+  #    - name: Build
+  #      #run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-clang-linux-clang 64
+  #      run: set -x && cd .circleci/ && source setup_env && cd ../ && bash .circleci/build barretenberg-wasm-linux-clang ignore_cache
+  #
+  #x86_64-linux-gcc:
+  #  if: github.event.pull_request.merged == true
+  #  runs-on: ubuntu-latest
+  #  #needs: checkout
+  #  #container: aztecprotocol/alpine-build-image
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v3
+  #    #- name: Setup environment
+  #    #  run: cd .circleci && source ./setup_env && cd ../
+  #    - name: Build
+  #      #run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-x86_64-linux-gcc 64
+  #      run: set -x && cd .circleci/ && source setup_env && cd ../ && bash .circleci/build barretenberg-x86_64-linux-gcc ignore_cache
+  #
+  #x86_64-linux-clang:
+  #  if: github.event.pull_request.merged == true
+  #  runs-on: ubuntu-latest
+  #  #needs: checkout
+  #  #container: aztecprotocol/alpine-build-image
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v3
+  #    #- name: Setup environment
+  #    #  run: cd .circleci && source ./setup_env && cd ../
+  #    - name: Build
+  #      #run: cd .circleci && source ./setup_env && cd ../ && pwd && bash .circleci/cond_spot_run_build barretenberg-wasm-linux-clang 64
+  #      run: set -x && cd .circleci/ && source setup_env && cd ../ && bash .circleci/build barretenberg-x86_64-linux-clang ignore_cache
+
+  x86_64-linux-clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Prepare
+        id: prep
+        run: |
+          DOCKER_IMAGE=$GITHUB_REPOSITORY-x86_64-linux-clang-assert
+          VERSION=edge
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            VERSION=nightly
+          fi
+          TAGS="${DOCKER_IMAGE}:${VERSION}"
+          if [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            TAGS="$TAGS,${DOCKER_IMAGE}:latest"
+          fi
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+    
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      #- name: Build and push
+      #  id: docker_build
+      #  uses: docker/build-push-action@v3
+      #  with:
+      #    builder: ${{ steps.buildx.outputs.name }}
+      #    context: ./cpp
+      #    file: ./cpp/dockerfiles/Dockerfile.${{ github.job }}
+      #    cache-from: type=gha
+      #    cache-to: type=gha,mode=max
+      #    push: false
+
+      - name: Build Tests and Push Image
+        id: docker_build_test
+        uses: docker/build-push-action@v3
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: ./cpp
+          file: ./cpp/dockerfiles/Dockerfile.${{ github.job }}-assert
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+          push: false
+          tags: x86_64-linux-clang
+          outputs: type=docker,dest=/tmp/x86_64-linux-clang.tar
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: x86_64-linux-clang
+          path: /tmp/x86_64-linux-clang.tar
+
+      #- name: Run Tests
+      #  id: docker_test
+      #  run: |
+      #    set -x
+      #    cd .circleci
+      #    source ./setup_env_github
+      #    cd ../
+      #    cd cpp
+      #    bash ./scripts/run_tests_no_aws 1 ./scripts/bb-tests x86_64-linux-clang
+      # #bash scripts/run_tests_no_aws 1 bb-tests $GITHUB_JOB-assert:cache-$GITHUB_SHA
+
+  x86_64-linux-clang-tests:
+    runs-on: ubuntu-latest
+    needs: x86_64-linux-clang
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: x86_64-linux-clang
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/x86_64-linux-clang.tar
+          docker image ls -a
+          
+      - name: Run Tests
+        id: docker_test
+        run: |
+          set -x
+          cd .circleci
+          source ./setup_env_github
+          cd ../
+          cd cpp
+          bash ./scripts/run_tests_no_aws 1 ./scripts/bb-tests x86_64-linux-clang
+
+  #x86_64-linux-clang-assert:
+  #  #if: github.event.pull_request.merged == true
+  #  runs-on: ubuntu-latest
+  #  #needs: checkout
+  #  #container: aztecprotocol/alpine-build-image
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v3
+  #    - name: Build image
+  #      run: |
+  #        set -x
+  #        cd .circleci
+  #        source ./setup_env_github
+  #        cd ../
+  #        bash .circleci/build barretenberg-$GITHUB_JOB ignore_cache
+  #    - name: Upload image
+  #      uses: ishworkh/docker-image-artifact-upload@v1
+  #      with:
+  #        image: ${{ format('barretenberg-{0}:cache-{1}', $GITHUB_JOB, $GITHUB_SHA) }}
+
+  #barretenberg-tests:
+  #  #if: github.event.pull_request.merged == true
+  #  runs-on: ubuntu-latest
+  #  needs: x86_64-linux-clang-assert
+  #  #container: aztecprotocol/alpine-build-image
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v3
+  #    - name: Download image
+  #      uses: ishworkh/docker-image-artifact-download@v1
+  #      with:
+  #        image: ${{ format('barretenberg-x86_64-linux-clang-assert:cache-{0}', $GITHUB_SHA) }}
+  #    - name: Run Tests
+  #      run: |
+  #        set -x
+  #        cd .circleci
+  #        source ./setup_env_github
+  #        cd ../
+  #        cd cpp
+  #        bash scripts/run_tests_no_aws 1 bb-tests barretenberg-x86_64-linux-clang-assert:cache-$GITHUB_SHA
+
+
+
+# When setting up builds, using `container: aztecprotocol/alpine-build-image` results in:
+# ```
+# fatal: detected dubious ownership in repository at '/__w/barretenberg/barretenberg'
+# To add an exception for this directory, call:
+#
+#	  git config --global --add safe.directory /__w/barretenberg/barretenberg
+# ```
+#
+# To work around this for now I had to remove `container: aztecprotocl/alpine-build-image`
+#
+# Things I tried that did not work:
+# * revert to `actions/checkout@v2`
+# * add the following to `uses: actions/checkout@v3` (or v2), but I don't totally follow what this does:
+#   ```
+#      with:
+#        set-safe-directory: true
+#        token: ${{ secrets.GITHUB_TOKEN }}
+#   ```
+# * manually run the following before the checkout step:
+#   ```
+#     run: |
+#       apk update && apk add git
+#       /usr/bin/git config --global --add safe.directory /__w/barretenberg/barretenberg
+#   ```
