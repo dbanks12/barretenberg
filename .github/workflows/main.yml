@@ -120,16 +120,16 @@ jobs:
           name: x86_64-linux-clang
           path: /tmp/x86_64-linux-clang.tar
 
-      - name: Run Tests
-        id: docker_test
-        run: |
-          set -x
-          cd .circleci
-          source ./setup_env_github
-          cd ../
-          cd cpp
-          bash ./scripts/run_tests_no_aws 1 ./scripts/bb-tests x86_64-linux-clang
-       #bash scripts/run_tests_no_aws 1 bb-tests $GITHUB_JOB-assert:cache-$GITHUB_SHA
+      #- name: Run Tests
+      #  id: docker_test
+      #  run: |
+      #    set -x
+      #    cd .circleci
+      #    source ./setup_env_github
+      #    cd ../
+      #    cd cpp
+      #    bash ./scripts/run_tests_no_aws 1 ./scripts/bb-tests x86_64-linux-clang
+      # #bash scripts/run_tests_no_aws 1 bb-tests $GITHUB_JOB-assert:cache-$GITHUB_SHA
 
   x86_64-linux-clang-tests:
     runs-on: ubuntu-latest
