@@ -112,6 +112,13 @@ jobs:
           load: true
           push: false
           tags: barretenberg-tests
+          outputs: type=docker,dest=/tmp/x86_64-linux-clang.tar
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: x86_64-linux-clang
+          path: /tmp/x86_64-linux-clang.tar
 
       - name: Run Tests
         id: docker_test
@@ -124,6 +131,33 @@ jobs:
           bash ./scripts/run_tests_no_aws 1 ./scripts/bb-tests barretenberg-tests
        #bash scripts/run_tests_no_aws 1 bb-tests $GITHUB_JOB-assert:cache-$GITHUB_SHA
 
+  x86_64-linux-clang-tests:
+    runs-on: ubuntu-latest
+    needs: x86_64-linux-clang
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: x86_64-linux-clang
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/x86_64-linux-clang.tar
+          docker image ls -a
+          
+      - name: Run Tests
+        id: docker_test
+        run: |
+          set -x
+          cd .circleci
+          source ./setup_env_github
+          cd ../
+          cd cpp
+          bash ./scripts/run_tests_no_aws 1 ./scripts/bb-tests x86_64-linux-clang-tests
 
   #x86_64-linux-clang-assert:
   #  #if: github.event.pull_request.merged == true
